@@ -1,0 +1,34 @@
+{
+  "name": "app-gas-amazonas",
+  "version": "1.0.0",
+  "description": "App de vendas de gás - App-Gas Amazonas LTDA",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "web": "expo start --web",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "eject": "expo eject"
+  },
+  "keywords": [
+    "gás",
+    "entrega",
+    "amazonas"
+  ],
+  "author": "App-Gas Amazonas LTDA",
+  "license": "ISC",
+  "dependencies": {
+    "@expo/webpack-config": "^19.0.0",
+    "@react-native-async-storage/async-storage": "~1.19.2",
+    "expo": "~49.0.11",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.72.6",
+    "react-native-web": "~0.19.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.0",
+    "babel-preset-expo": "^9.5.0",
+    "glob": "^7.2.3"
+  }
+}
