@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 const COLORS = {
-  primary: '#D90000',
+  primary: '#1ABC9C',
   secondary: '#6C757D',
   outline: '#FFFFFF',
 };

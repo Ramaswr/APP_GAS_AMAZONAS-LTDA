@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const colors = {
   background: '#E8F5E9',
-  primary: '#D90000',
+  primary: '#1ABC9C',
   accent: '#007BFF',
   dark: '#333',
 };
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 15, color: '#444', marginBottom: 8, fontWeight: '600' },
   paymentOptionContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 15 },
   paymentOption: { width: '48%', padding: 12, borderRadius: 12, borderWidth: 2, borderColor: '#DDD', alignItems: 'center', marginBottom: 12, backgroundColor: '#F9F9F9' },
-  paymentSelected: { borderColor: colors.primary, backgroundColor: '#FFE6E6', borderWidth: 3 },
+  paymentSelected: { borderColor: colors.primary, backgroundColor: '#E5F8F3', borderWidth: 3 },
   paymentText: { fontSize: 14, fontWeight: '700', color: '#333' },
   userTitle: { fontSize: 20, fontWeight: '800', color: '#333', marginBottom: 8 },
   userDescription: { fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 12 },

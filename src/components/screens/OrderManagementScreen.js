@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native';
 import styles from '../../styles/globalStyles';
 import AppButton from '../common/AppButton';
 
@@ -27,8 +27,15 @@ const OrderManagementScreen = ({ orders = [], userType, clientEmail, onIncrement
             </View>
             {order.items.map(item => (
               <View key={`${order.id}-${item.id}`} style={{ marginBottom: 10 }}>
-                <Text style={{ fontWeight: '700', color: '#333' }}>{item.name} • Qty: {item.quantity || 1}</Text>
-                <Text style={{ fontSize: 12, color: '#666' }}>R$ {(item.price * (item.quantity || 1)).toFixed(2).replace('.', ',')}</Text>
+                <View style={styles.productRow}>
+                  {item.image && (
+                    <Image source={item.image} style={styles.miniProduct} resizeMode="contain" />
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontWeight: '700', color: '#333' }}>{item.name} • Qty: {item.quantity || 1}</Text>
+                    <Text style={{ fontSize: 12, color: '#666' }}>R$ {(item.price * (item.quantity || 1)).toFixed(2).replace('.', ',')}</Text>
+                  </View>
+                </View>
                 <View style={{ flexDirection: 'row', marginTop: 6 }}>
                   <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#28A745', marginRight: 10 }]} onPress={() => onIncrementItem(order, item)}>
                     <Text style={styles.actionButtonText}>+1 Item</Text>

@@ -21,7 +21,9 @@ const SelectProductScreen = ({ products, onProductSelect, onLogout, clientEmail,
     {products.map(option => (
       <View key={option.id} style={styles.card}>
         <View style={styles.productRow}>
-          {option.image && <Image source={option.image} style={styles.miniProduct} />}
+          {option.image && (
+            <Image source={option.image} style={styles.miniProduct} resizeMode="contain" />
+          )}
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>{option.name}</Text>
             <Text style={styles.subtitle}>⚖️ {option.weight}</Text>

@@ -43,7 +43,9 @@ const PaymentScreen = ({ cart = [], clientEmail, onConfirmPayment, onBack }) => 
             {cart.map(item => (
               <View key={item.id} style={[styles.cartItem, { borderLeftColor: '#28A745' }]}>
                 <View style={{ flexDirection: 'row', flex: 1 }}>
-                  {item.image && <Image source={item.image} style={styles.miniProduct} />}
+                  {item.image && (
+                    <Image source={item.image} style={styles.miniProduct} resizeMode="contain" />
+                  )}
                   <View style={{ flex: 1 }}>
                     <Text style={styles.cartItemName}>{item.name}</Text>
                     <Text style={{ fontSize: 12, color: '#666' }}>Qtd: {item.quantity || 1}</Text>

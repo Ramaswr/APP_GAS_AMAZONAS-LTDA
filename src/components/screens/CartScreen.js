@@ -18,7 +18,9 @@ const CartScreen = ({ cart = [], onIncrement, onDecrement, onRemove, onProceedTo
           {cart.map(item => (
             <View key={item.id} style={styles.cartItem}>
               <View style={styles.productRow}>
-                {item.image && <Image source={item.image} style={styles.miniProduct} />}
+                {item.image && (
+                  <Image source={item.image} style={styles.miniProduct} resizeMode="contain" />
+                )}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cartItemName}>{item.name}</Text>
                   <Text style={{ fontSize: 12, color: '#666' }}>{item.weight}</Text>

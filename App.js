@@ -286,7 +286,7 @@ const App = () => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#D90000" />
+        <ActivityIndicator size="large" color="#1ABC9C" />
         <Text style={{ marginTop: 10, fontSize: 16, fontWeight: '600' }}>Carregando...</Text>
       </View>
     );
