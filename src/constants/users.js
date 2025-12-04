@@ -8,4 +8,5 @@ export const STORAGE_KEYS = {
   CLIENT_DATA: '@ClientData',
   PENDING_ORDERS: '@PendingOrders',
   CART: '@Cart',
+  THEME_MODE: '@ThemeMode',
 };

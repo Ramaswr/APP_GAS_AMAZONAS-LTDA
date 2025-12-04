@@ -6,7 +6,9 @@ export const readJson = async (key, fallback = null) => {
     return raw ? JSON.parse(raw) : fallback;
   } catch (e) {
     console.warn(`Falha ao ler ${key}`, e);
-    try { await AsyncStorage.removeItem(key); } catch (clearErr) {
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch (clearErr) {
       console.warn('Falha ao limpar chave corrompida', clearErr);
     }
     return fallback;
