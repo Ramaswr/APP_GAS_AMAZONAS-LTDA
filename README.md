@@ -104,7 +104,7 @@ uvicorn app.main:app --reload
 2. **Login/Cadastro** (`LoginScreen` / `RegisterScreen`)
 3. **Seleção de Produtos** (`SelectProductScreen` com dados de `PRODUCTS`)
 4. **Carrinho** (`CartScreen` com incrementos/decrementos consistentes)
-5. **Pagamento** (`PaymentScreen` com `PAYMENT_OPTIONS`)
+5. **Pagamento** (`PaymentScreen` com `PAYMENT_OPTIONS` incluindo dinheiro, PIX e cartões de crédito/débito aceitando todas as bandeiras definidas em `CARD_BRANDS`)
 6. **Resumo Final** (`ThankYouScreen` exibindo `lastOrderInfo`)
 
 ### Preferências de Tema (Clara/Escura)
@@ -133,6 +133,15 @@ uvicorn app.main:app --reload
 | Senhas backend       | SHA-256 (sem salt)          | Adotar `bcrypt`/`argon2` com salt e rounds configurados.         |
 | Transporte           | HTTP local                  | Habilitar HTTPS e restringir CORS por domínio.                   |
 | Armazenamento local  | AsyncStorage em texto claro | Criptografar campos sensíveis (expo-secure-store) para produção. |
+
+### Política de Senhas e Gestão de Segredos
+
+- **Variáveis de Ambiente (`.env`)**: mantenha chaves de API, URIs e segredos apenas em arquivos `.env` ignorados pelo Git (`.gitignore`). Durante o build, carregue-os via `process.env` (frontend) ou `python-dotenv`/variáveis do sistema (backend). Versione apenas um arquivo `env.example` sem valores reais.
+- **Hash Seguro com `bcrypt`**: substitua os hashes SHA-256 atuais por `bcrypt` (ou `argon2`). Back-end FastAPI já possui base em `security.py`; basta instalar `bcrypt`, configurar `passlib.context.CryptContext` com `schemes=['bcrypt']` e usar `hashpw`/`verify`. Inclua testes cobrindo hash + verificação para evitar regressões.
+- **Armazenamento Local Criptografado**: no app Expo, persista tokens/sessões usando `expo-secure-store` (ou `@react-native-keychain`) em vez de `AsyncStorage`. Crie um wrapper em `src/utils/storage.js` que escolha SecureStore para chaves sensíveis e mantenha AsyncStorage só para preferências sem impacto (tema, onboarding).
+- **MFA/TOTP**: para contas administrativas, habilite MFA por app autenticador (TOTP). No backend, utilize bibliotecas como `pyotp` para gerar segredo por usuário, armazená-lo criptografado e validar códigos de 6 dígitos no login. Registre também dispositivos WebAuthn para navegadores modernos quando possível.
+- **Rotação e Complexidade**: imponha senhas com mínimo de 12 caracteres, combinando letras, números e símbolos. Force troca periódica apenas diante de incidente, mas monitore tentativas usando rate limiting (FastAPI `slowapi` ou API Gateway). Documente o procedimento de reset seguro (token expira em 15 minutos, envio via canal confiável).
+- **Revisão e Auditoria**: agende revisão trimestral das credenciais expostas (GitHub secret scanning, Dependabot alerts) e aplique `npm audit`/`pip-audit` no CI. Quaisquer acessos privilegiados devem ter logging centralizado e alerta automático em caso de falha repetida de MFA.
 
 ---
 
@@ -168,6 +177,15 @@ uvicorn app.main:app --reload
 3. **Gestão de pedidos em tempo real**: websockets ou polling para operadores acompanharem atualizações.
 4. **Monitoramento e Alertas**: logs estruturados e dashboards (Grafana/CloudWatch).
 5. **Publicação**: backend em container + banco gerenciado; app distribuído via EAS Build / Google Play / App Store.
+
+---
+
+## Operações de Segurança
+
+- **Plano de Upgrade Expo/Webpack**: o projeto já está em `expo@54.0.26` após `npm audit fix --force`, eliminando `send` e `webpack-dev-server` vulneráveis. Os alertas remanescentes (`semver`, `xml2js`) exigem migrar para o ciclo Expo 55 (`@expo/webpack-config@19.x`). O passo a passo (branch dedicada, testes, rollback) está em [`docs/SECURITY_OPERATIONS.md`](docs/SECURITY_OPERATIONS.md#1-plano-de-upgrade-expo--webpack).
+- **Antivírus ClamAV**: instale via `apt`, atualize assinaturas com `freshclam` e execute `clamscan -r -i <workspace>` semanalmente (idealmente via cron). Salve relatórios em `reports/` para auditoria. Procedimento completo: [`docs/SECURITY_OPERATIONS.md`](docs/SECURITY_OPERATIONS.md#2-procedimento-de-antivirus-clamav).
+- **Governança GitHub**: mantenha o repositório privado, force 2FA, habilite branch protection com reviews, status checks (`npm test`, `pytest`, `clamscan`) e commits assinados. Ative Secret Scanning, Push Protection e Dependabot para npm/pip. Detalhes no mesmo guia.
+- **Checklist rápido**: utilize a seção final do guia para validar se `npm audit` está limpo, ClamAV está automatizado e os controles de acesso estão revisados trimestralmente.
 
 ---
 

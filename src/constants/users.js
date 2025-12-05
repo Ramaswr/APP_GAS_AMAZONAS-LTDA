@@ -9,4 +9,5 @@ export const STORAGE_KEYS = {
   PENDING_ORDERS: '@PendingOrders',
   CART: '@Cart',
   THEME_MODE: '@ThemeMode',
+  LOCAL_DELIVERERS: '@LocalDeliverers',
 };

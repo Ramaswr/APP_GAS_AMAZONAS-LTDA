@@ -62,8 +62,48 @@ export const PRODUCTS = [
   },
 ];
 
+export const CARD_BRANDS = [
+  {
+    name: 'Visa',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Visa_Logo.png/320px-Visa_Logo.png',
+  },
+  {
+    name: 'Mastercard',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Mastercard-logo.png/320px-Mastercard-logo.png',
+  },
+  {
+    name: 'Elo',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Elo_card_logo.png/320px-Elo_card_logo.png',
+  },
+  {
+    name: 'Hipercard',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Hipercard_logo.png/320px-Hipercard_logo.png',
+  },
+  {
+    name: 'American Express',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/American_Express_logo_%282018%29.svg/512px-American_Express_logo_%282018%29.svg.png',
+  },
+  {
+    name: 'Cabal',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Cabal_logo.svg/512px-Cabal_logo.svg.png',
+  },
+];
+
 export const PAYMENT_OPTIONS = [
   { key: 'Dinheiro', label: 'Dinheiro', icon: '💵' },
   { key: 'PIX', label: 'PIX', icon: '⚡' },
-  { key: 'Cartão', label: 'Cartão', icon: '💳' },
+  {
+    key: 'CartaoCredito',
+    label: 'Cartão de Crédito',
+    icon: '💳',
+    description: 'Aceitamos todas as bandeiras de cartão de crédito.',
+    brands: CARD_BRANDS,
+  },
+  {
+    key: 'CartaoDebito',
+    label: 'Cartão de Débito',
+    icon: '🏧',
+    description: 'Débito com aprovação imediata em qualquer bandeira.',
+    brands: CARD_BRANDS,
+  },
 ];

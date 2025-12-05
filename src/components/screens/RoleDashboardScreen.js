@@ -13,6 +13,8 @@ const RoleDashboardScreen = ({
   onViewAllOrders,
   onViewClientOrders,
   onRefreshDashboard,
+  onRegisterDeliverer,
+  onViewCourierOrders,
   onBackToSelection,
 }) => {
   const totalSales = useMemo(
@@ -78,6 +80,21 @@ const RoleDashboardScreen = ({
           onPress={onRefreshDashboard}
           style={{ marginTop: 10 }}
         />
+        {(userType === 'Administrador' || userType === 'Entregador') && (
+          <>
+            <AppButton
+              label="Cadastrar novo entregador"
+              variant="secondary"
+              onPress={onRegisterDeliverer}
+              style={{ marginTop: 10 }}
+            />
+            <AppButton
+              label="📍 Abrir painel de rotas"
+              onPress={onViewCourierOrders}
+              style={{ marginTop: 10 }}
+            />
+          </>
+        )}
       </View>
 
       {(userType === 'Administrador' || userType === 'Entregador') && (

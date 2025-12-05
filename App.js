@@ -20,6 +20,8 @@ import ThankYouScreen from './src/components/screens/ThankYouScreen';
 import OrderManagementScreen from './src/components/screens/OrderManagementScreen';
 // ## Importa o painel usado por administradores e entregadores
 import RoleDashboardScreen from './src/components/screens/RoleDashboardScreen';
+import CourierRegisterScreen from './src/components/screens/CourierRegisterScreen';
+import CourierOrdersScreen from './src/components/screens/CourierOrdersScreen';
 // ## Importa estilos globais e provedores de tema reutilizados no app inteiro
 import { createStyles, themes } from './src/styles/globalStyles';
 import { ThemeProvider } from './src/styles/ThemeContext';
@@ -71,6 +73,20 @@ const mapApiOrder = (order) => {
     invoiceNumber: order.invoice_number,
     invoiceUrl: order.invoice_url,
     proofs: order.proofs || [],
+    deliveryLocation:
+      order.delivery_location ||
+      order.deliveryLocation ||
+      (order.client_location
+        ? {
+            address:
+              order.client_location.address ||
+              order.client_location.description ||
+              order.client_location.label ||
+              'Endereço não informado',
+            latitude: order.client_location.latitude,
+            longitude: order.client_location.longitude,
+          }
+        : null),
   };
 };
 
@@ -90,8 +106,9 @@ const App = () => {
   const [orders, setOrders] = useState([]);
   // ## Indica se há uma sincronização ativa com o backend
   const [isSyncingOrders, setIsSyncingOrders] = useState(false);
-  // ## Mantém a lista de entregadores vinda do backend
-  const [deliverers, setDeliverers] = useState([]);
+  // ## Mantém a lista de entregadores vindos do backend e registros locais
+  const [remoteDeliverers, setRemoteDeliverers] = useState([]);
+  const [localDeliverers, setLocalDeliverers] = useState([]);
   // ## Guarda métricas agregadas para o dashboard operacional
   const [dashboardSummary, setDashboardSummary] = useState(null);
   // ## Indica se o cliente atual está autenticado
@@ -106,6 +123,12 @@ const App = () => {
   const [bootstrapped, setBootstrapped] = useState(false);
   // ## Guarda a preferência de tema do usuário
   const [themeMode, setThemeMode] = useState('light');
+  const [activeDelivererName, setActiveDelivererName] = useState('Entregador');
+
+  const deliverers = useMemo(
+    () => [...localDeliverers, ...remoteDeliverers],
+    [localDeliverers, remoteDeliverers]
+  );
 
   // ## Paleta e estilos derivados do tema atual
   const themeColors = themes[themeMode] || themes.light;
@@ -127,6 +150,7 @@ const App = () => {
           storedLogin,
           storedLastOrder,
           storedTheme,
+          storedLocalDeliverers,
         ] = await Promise.all([
           // ## Recupera pedidos pendentes gravados anteriormente
           readJson(STORAGE_KEYS.PENDING_ORDERS, []),
@@ -144,6 +168,8 @@ const App = () => {
           readJson(STORAGE_KEYS.LAST_ORDER, null),
           // ## Recupera o tema preferido (claro/escuro)
           readJson(STORAGE_KEYS.THEME_MODE, 'light'),
+          // ## Recupera entregadores cadastrados localmente
+          readJson(STORAGE_KEYS.LOCAL_DELIVERERS, []),
         ]);
 
         // ## Seta pedidos carregados ou lista vazia por padrão
@@ -156,6 +182,8 @@ const App = () => {
         setClientEmail(storedClientEmail);
         // ## Recarrega clientes cadastrados anteriormente
         setRegisteredClients(storedClients || []);
+        // ## Carrega entregadores registrados localmente
+        setLocalDeliverers(storedLocalDeliverers || []);
         // ## Define flag de login apenas para clientes autenticados
         setIsClientLoggedIn(!!(storedLogin && storedRole === CLIENT_ROLE));
         // ## Armazena informações do último pedido concluído
@@ -196,6 +224,17 @@ const App = () => {
     }
   }, [userType, loadOperationalData]);
 
+  useEffect(() => {
+    if (userType !== DELIVERY_ROLE) return;
+    if (!localDeliverers.length) return;
+    const alreadySelected = localDeliverers.some(
+      (deliverer) => deliverer.name === activeDelivererName
+    );
+    if (!alreadySelected) {
+      setActiveDelivererName(localDeliverers[0].name);
+    }
+  }, [userType, localDeliverers, activeDelivererName]);
+
   // ## Persiste os pedidos sempre que forem alterados após o bootstrap
   useEffect(() => {
     // ## Aguarda a hidratação inicial antes de persistir
@@ -219,6 +258,11 @@ const App = () => {
     // ## Salva a lista de clientes registrados localmente
     writeJson(STORAGE_KEYS.CLIENT_DATA, registeredClients);
   }, [registeredClients, bootstrapped]);
+
+  useEffect(() => {
+    if (!bootstrapped) return;
+    writeJson(STORAGE_KEYS.LOCAL_DELIVERERS, localDeliverers);
+  }, [localDeliverers, bootstrapped]);
 
   // ## Persiste o tipo de usuário escolhido
   useEffect(() => {
@@ -272,7 +316,7 @@ const App = () => {
   // ## Carrega entregadores e métricas do backend para o dashboard operacional
   const loadOperationalData = useCallback(async () => {
     try {
-      const [remoteDeliverers, summary] = await Promise.all([
+      const [remoteList, summary] = await Promise.all([
         fetchDeliverers().catch((error) => {
           console.warn('Falha ao carregar entregadores', error);
           return null;
@@ -282,8 +326,8 @@ const App = () => {
           return null;
         }),
       ]);
-      if (Array.isArray(remoteDeliverers)) {
-        setDeliverers(remoteDeliverers);
+      if (Array.isArray(remoteList)) {
+        setRemoteDeliverers(remoteList);
       }
       if (summary) {
         setDashboardSummary(summary);
@@ -318,6 +362,11 @@ const App = () => {
       setUserType(roleKey);
       // ## Reseta qualquer filtro de cliente aplicado
       setFocusedClientEmail(null);
+      if (roleKey === DELIVERY_ROLE && localDeliverers.length) {
+        setActiveDelivererName((prev) =>
+          prev === 'Entregador' ? localDeliverers[0].name : prev
+        );
+      }
       // ## Decide a navegação com base no papel selecionado
       if (roleKey === CLIENT_ROLE) {
         // ## Direciona o cliente para home ou login conforme autenticação
@@ -328,8 +377,64 @@ const App = () => {
         loadOperationalData();
       }
     },
-    [isClientLoggedIn, loadOperationalData]
+    [isClientLoggedIn, loadOperationalData, localDeliverers]
   );
+
+  const handleRefreshOperationalData = useCallback(() => {
+    syncOrdersFromBackend();
+    loadOperationalData();
+  }, [syncOrdersFromBackend, loadOperationalData]);
+
+  const handleOpenCourierRegister = useCallback(() => {
+    setScreen('courierRegister');
+  }, []);
+
+  const handleOpenCourierOrders = useCallback(() => {
+    setFocusedClientEmail(null);
+    setScreen('courierOrders');
+  }, []);
+
+  const handleSaveDeliverer = useCallback(
+    (courierData) => {
+      const normalizedCpf = courierData.cpf.replace(/\D/g, '');
+      const normalizedCep = courierData.cep.replace(/\D/g, '');
+      const newDeliverer = {
+        id: `local-${Date.now()}`,
+        name: courierData.name.trim(),
+        cpf: normalizedCpf,
+        cep: normalizedCep,
+        vehicleBrand: courierData.vehicleBrand.trim(),
+        vehicleDescription: courierData.vehicleDescription?.trim() || '',
+        status: 'AVAILABLE',
+        createdAt: new Date().toISOString(),
+      };
+      setLocalDeliverers((prev) => [...prev, newDeliverer]);
+      if (userType === DELIVERY_ROLE) {
+        setActiveDelivererName(newDeliverer.name);
+      }
+      Alert.alert(
+        'Entregador registrado',
+        'O cadastro foi salvo localmente e pode ser sincronizado com o backend quando disponível.'
+      );
+      setScreen('roleDashboard');
+    },
+    [userType]
+  );
+
+  const handleUpdateOrderLocation = useCallback((orderId, locationData) => {
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.id === orderId
+          ? {
+              ...order,
+              deliveryLocation: {
+                ...locationData,
+              },
+            }
+          : order
+      )
+    );
+  }, []);
 
   // ## Realiza validações e autenticação do cliente
   const handleClientLogin = useCallback(
@@ -443,6 +548,7 @@ const App = () => {
     setCart([]);
     // ## Remove filtros específicos de pedidos
     setFocusedClientEmail(null);
+    setActiveDelivererName('Entregador');
   }, []);
 
   // ## Adiciona produtos ao carrinho ou incrementa se já existirem
@@ -523,6 +629,7 @@ const App = () => {
         invoiceNumber: null,
         invoiceUrl: null,
         proofs: [],
+        deliveryLocation: null,
       };
 
       try {
@@ -748,16 +855,32 @@ const App = () => {
             summary={dashboardSummary}
             onViewAllOrders={() => handleOpenOrdersBoard(null)}
             onViewClientOrders={(email) => handleOpenOrdersBoard(email)}
-            onRefreshDashboard={() => {
-              syncOrdersFromBackend();
-              loadOperationalData();
-            }}
+            onRefreshDashboard={handleRefreshOperationalData}
+            onRegisterDeliverer={handleOpenCourierRegister}
+            onViewCourierOrders={handleOpenCourierOrders}
             onBackToSelection={() => {
               // ## Retorna para a escolha de perfil quando solicitado
               setScreen('userSelect');
               // ## Limpa o tipo de usuário atual
               setUserType(null);
             }}
+          />
+        )}
+
+        {screen === 'courierRegister' && userType !== CLIENT_ROLE && (
+          <CourierRegisterScreen
+            onSave={handleSaveDeliverer}
+            onCancel={() => setScreen('roleDashboard')}
+          />
+        )}
+
+        {screen === 'courierOrders' && userType !== CLIENT_ROLE && (
+          <CourierOrdersScreen
+            orders={orders}
+            delivererName={activeDelivererName}
+            onBack={() => setScreen('roleDashboard')}
+            onRefreshOrders={handleRefreshOperationalData}
+            onUpdateLocation={handleUpdateOrderLocation}
           />
         )}
 

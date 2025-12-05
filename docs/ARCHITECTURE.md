@@ -70,7 +70,7 @@ Todas as operacoes utilizam `readJson`/`writeJson`, que encapsulam serializacao 
 
 ### 2.5 Produtos e pagamentos
 
-`src/constants/products.js` fixa o catalogo (gas e agua) com preco, peso e imagem. Os metodos de pagamento estao em `PAYMENT_OPTIONS` e sao usados na tela de pagamento.
+`src/constants/products.js` fixa o catalogo (gas e agua) com preco, peso e imagem. Os metodos de pagamento estao em `PAYMENT_OPTIONS`, cobrindo dinheiro, PIX e cartões separados por crédito/débito. O array `CARD_BRANDS` lista todas as bandeiras aceitas e é exibido em `PaymentScreen` para comprovar a abrangência para qualquer cartão bancário.
 
 ---
 
