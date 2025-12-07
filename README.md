@@ -189,6 +189,18 @@ uvicorn app.main:app --reload
 
 ---
 
+## Release v1.1 (2025-12-06)
+
+- **Tema claro/escuro em todo o app**: `ThemeProvider` e `ThemeToggle` agora figuram em telas críticas (login, catálogos, dashboards e novos fluxos), com persistência em AsyncStorage.
+- **Módulo do entregador**: inclusão das telas `CourierRegisterScreen` (cadastro com validação de CPF/CEP e veículo) e `CourierOrdersScreen` (rastreamento GPS com `expo-location`, atualização manual de endereços e abertura de rotas no Google Maps).
+- **Segurança operacional**: criação do guia [`docs/SECURITY_OPERATIONS.md`](docs/SECURITY_OPERATIONS.md) com processo de upgrade, antivírus (ClamAV) e governança GitHub; README atualizado com política de senhas.
+- **Infra e ativos**: upgrade para `expo@54.0.26`, adoção do `expo-location`, regeneração dos ícones (`icon.png`, `adaptive-icon.png`, `splash.png`, `favicon.png`) e correção do build Web (`npm run web -- --clear`).
+- **Testes e auditorias**: `npm run lint` e `npm audit` executados após reinstalação limpa; vulnerabilidades restantes dependem do lançamento do Expo 55.
+
+> Consulte [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md) para detalhes completos de requisitos, validações e problemas conhecidos.
+
+---
+
 ## Contribuição
 
 1. Faça um fork e crie um branch (`feat/nome`).
